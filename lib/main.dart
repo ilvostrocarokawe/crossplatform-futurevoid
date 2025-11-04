@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'personalgreeter.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,7 +30,7 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const PersonalGreeter(),
+      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
