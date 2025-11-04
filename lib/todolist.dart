@@ -112,7 +112,7 @@ class _TodoListScreenState extends State<TodoListScreen> {
                     child: Text('Aggiungi un todo per vederne le info.'),
                   )
                 : filteredList.isEmpty
-                ? const Center(child: Text('Nessun elemento in questa vista.'))
+                ? const Center(child: Text('Nessun elemento.'))
                 : ListView.builder(
                     itemCount: filteredList.length,
                     itemBuilder: (context, index) {
