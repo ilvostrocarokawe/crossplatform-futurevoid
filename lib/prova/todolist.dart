@@ -1,31 +1,13 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const TodoApp());
-}
-
-class TodoApp extends StatelessWidget {
-  const TodoApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'To-Do List',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const TodoListScreen(),
-    );
-  }
-}
-
 class Task {
   String title;
   bool completed;
 
   Task({required this.title, this.completed = false});
 }
+
+enum FilterState { all, completed, incomplete }
 
 class TodoListScreen extends StatefulWidget {
   const TodoListScreen({super.key});
@@ -36,13 +18,18 @@ class TodoListScreen extends StatefulWidget {
 
 class _TodoListScreenState extends State<TodoListScreen> {
   final List<Task> _tasks = [];
-  bool _showOnlyCompleted = false;
+  FilterState _currentFilter = FilterState.all;
 
   List<Task> get _filteredTasks {
-    if (_showOnlyCompleted) {
-      return _tasks.where((task) => task.completed).toList();
+    switch (_currentFilter) {
+      case FilterState.completed:
+        return _tasks.where((task) => task.completed).toList();
+      case FilterState.incomplete:
+        return _tasks.where((task) => !task.completed).toList();
+      case FilterState.all:
+      default:
+        return _tasks;
     }
-    return _tasks;
   }
 
   void _addTask() async {
@@ -60,13 +47,8 @@ class _TodoListScreenState extends State<TodoListScreen> {
 
   void _toggleTaskCompletion(int index, bool? value) {
     setState(() {
-      _filteredTasks[index].completed = value ?? false;
-    });
-  }
-
-  void _toggleFilter() {
-    setState(() {
-      _showOnlyCompleted = !_showOnlyCompleted;
+      final task = _filteredTasks[index];
+      task.completed = value ?? false;
     });
   }
 
@@ -75,15 +57,37 @@ class _TodoListScreenState extends State<TodoListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My To-Do List'),
-        actions: [
-          TextButton(
-            onPressed: _toggleFilter,
-            child: Text(
-              _showOnlyCompleted ? 'Mostra Tutti' : 'Mostra Completati',
-              style: TextStyle(color: Colors.white),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(kToolbarHeight),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+            child: SegmentedButton<FilterState>(
+              segments: const <ButtonSegment<FilterState>>[
+                ButtonSegment<FilterState>(
+                  value: FilterState.all,
+                  label: Text('Tutti'),
+                  icon: Icon(Icons.list),
+                ),
+                ButtonSegment<FilterState>(
+                  value: FilterState.completed,
+                  label: Text('Completati'),
+                  icon: Icon(Icons.check_box),
+                ),
+                ButtonSegment<FilterState>(
+                  value: FilterState.incomplete,
+                  label: Text('Da Fare'),
+                  icon: Icon(Icons.check_box_outline_blank),
+                ),
+              ],
+              selected: <FilterState>{_currentFilter},
+              onSelectionChanged: (Set<FilterState> newSelection) {
+                setState(() {
+                  _currentFilter = newSelection.first;
+                });
+              },
             ),
           ),
-        ],
+        ),
       ),
       body: ListView.builder(
         itemCount: _filteredTasks.length,
