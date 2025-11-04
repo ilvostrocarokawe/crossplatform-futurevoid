@@ -10,7 +10,7 @@ class ColorChangerPage extends StatefulWidget {
 
 class _ColorChangerPageState extends State<ColorChangerPage> {
   Color _backgroundColor = Colors.white;
-  bool _isLightMode = false;
+  Brightness _brightness = Brightness.light;
 
   void _changeColor(Color newColor) {
     setState(() => _backgroundColor = newColor);
@@ -18,8 +18,10 @@ class _ColorChangerPageState extends State<ColorChangerPage> {
 
   void _toggleMode(bool value) {
     setState(() {
-      _isLightMode = value;
-      _backgroundColor = value ? Colors.yellow : Colors.grey[850]!;
+      _brightness = value ? Brightness.light : Brightness.dark;
+      _backgroundColor = _brightness == Brightness.light
+          ? Colors.white
+          : Colors.grey[850]!;
     });
   }
 
@@ -59,7 +61,10 @@ class _ColorChangerPageState extends State<ColorChangerPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text('Dark/Light mode'),
-                Switch(value: _isLightMode, onChanged: _toggleMode),
+                Switch(
+                  value: _brightness == Brightness.light,
+                  onChanged: _toggleMode,
+                ),
               ],
             ),
 
