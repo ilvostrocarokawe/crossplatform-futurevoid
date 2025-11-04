@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-// Un modello per rappresentare un singolo todo
 class Todo {
   String title;
   bool completed;
@@ -18,7 +17,7 @@ class TodoListScreen extends StatefulWidget {
 class _TodoListScreenState extends State<TodoListScreen> {
   final List<Todo> _todoList = [];
   final TextEditingController _textFieldController = TextEditingController();
-  int _selectedIndex = 0; // 0: Tutte, 1: Da Fare, 2: Completate
+  int _selectedIndex = 0;
 
   void _addTodoItem(String title) {
     setState(() {
@@ -28,7 +27,6 @@ class _TodoListScreenState extends State<TodoListScreen> {
   }
 
   void _removeTodoItem(int index) {
-    // Bisogna trovare l'indice corretto nella lista originale
     final todoToRemove = _getFilteredList()[index];
     setState(() {
       _todoList.remove(todoToRemove);
@@ -36,7 +34,6 @@ class _TodoListScreenState extends State<TodoListScreen> {
   }
 
   void _toggleTodoStatus(int index, bool? value) {
-    // Bisogna trovare l'indice corretto nella lista originale
     final todoToToggle = _getFilteredList()[index];
     final originalIndex = _todoList.indexOf(todoToToggle);
     setState(() {
@@ -47,7 +44,7 @@ class _TodoListScreenState extends State<TodoListScreen> {
   Future<void> _displayDialog() async {
     return showDialog<void>(
       context: context,
-      barrierDismissible: false, // l'utente deve premere un pulsante
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Aggiungi un nuovo todo'),
@@ -82,11 +79,11 @@ class _TodoListScreenState extends State<TodoListScreen> {
 
   List<Todo> _getFilteredList() {
     switch (_selectedIndex) {
-      case 1: // Da Fare
+      case 1: 
         return _todoList.where((todo) => !todo.completed).toList();
-      case 2: // Completate
+      case 2:
         return _todoList.where((todo) => todo.completed).toList();
-      case 0: // Tutte
+      case 0:
       default:
         return _todoList;
     }
@@ -100,20 +97,15 @@ class _TodoListScreenState extends State<TodoListScreen> {
       appBar: AppBar(title: const Text('To Do List')),
       body: Column(
         children: [
-          SegmentedButton<int>(
-            segments: const <ButtonSegment<int>>[
-              ButtonSegment<int>(value: 0, label: Text('Tutte')),
-              ButtonSegment<int>(value: 1, label: Text('Da Fare')),
-              ButtonSegment<int>(value: 2, label: Text('Completate')),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildFilterButton(0, 'Tutte'),
+              _buildFilterButton(1, 'Da Fare'),
+              _buildFilterButton(2, 'Completate'),
             ],
-            selected: {_selectedIndex},
-            onSelectionChanged: (Set<int> newSelection) {
-              setState(() {
-                _selectedIndex = newSelection.first;
-              });
-            },
           ),
-          const SizedBox(height: 8),
+          const Divider(color: Colors.black, height: 1),
           Expanded(
             child: _todoList.isEmpty
                 ? const Center(
@@ -125,24 +117,24 @@ class _TodoListScreenState extends State<TodoListScreen> {
                     itemCount: filteredList.length,
                     itemBuilder: (context, index) {
                       final todo = filteredList[index];
-                      return ListTile(
-                        leading: Checkbox(
-                          value: todo.completed,
-                          onChanged: (bool? value) {
-                            _toggleTodoStatus(index, value);
-                          },
-                        ),
-                        title: Text(
-                          todo.title,
-                          style: TextStyle(
-                            decoration: todo.completed
-                                ? TextDecoration.lineThrough
-                                : TextDecoration.none,
+                      return InkWell(
+                        onLongPress: () => _removeTodoItem(index),
+                        child: ListTile(
+                          leading: Checkbox(
+                            value: todo.completed,
+                            onChanged: (bool? value) {
+                              _toggleTodoStatus(index, value);
+                            },
                           ),
-                        ),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () => _removeTodoItem(index),
+                          title: Text(
+                            todo.title,
+                            style: TextStyle(
+                              color: Colors.black,
+                              decoration: todo.completed
+                                  ? TextDecoration.lineThrough
+                                  : TextDecoration.none,
+                            ),
+                          ),
                         ),
                       );
                     },
@@ -154,6 +146,28 @@ class _TodoListScreenState extends State<TodoListScreen> {
         onPressed: () => _displayDialog(),
         tooltip: 'Aggiungi Todo',
         child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  Widget _buildFilterButton(int index, String text) {
+    return TextButton(
+      style: TextButton.styleFrom(
+        foregroundColor: Colors.black,
+        backgroundColor: Colors.transparent,
+      ),
+      onPressed: () {
+        setState(() {
+          _selectedIndex = index;
+        });
+      },
+      child: Text(
+        text,
+        style: TextStyle(
+          decoration: _selectedIndex == index
+              ? TextDecoration.underline
+              : TextDecoration.none,
+        ),
       ),
     );
   }
