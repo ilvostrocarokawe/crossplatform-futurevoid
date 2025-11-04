@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 
-class Task {
+// Un modello per rappresentare un singolo todo
+class Todo {
   String title;
   bool completed;
 
-  Task({required this.title, this.completed = false});
+  Todo({required this.title, this.completed = false});
 }
-
-enum FilterState { all, completed, incomplete }
 
 class TodoListScreen extends StatefulWidget {
   const TodoListScreen({super.key});
@@ -17,142 +16,144 @@ class TodoListScreen extends StatefulWidget {
 }
 
 class _TodoListScreenState extends State<TodoListScreen> {
-  final List<Task> _tasks = [];
-  FilterState _currentFilter = FilterState.all;
+  final List<Todo> _todoList = [];
+  final TextEditingController _textFieldController = TextEditingController();
+  int _selectedIndex = 0; // 0: Tutte, 1: Da Fare, 2: Completate
 
-  List<Task> get _filteredTasks {
-    switch (_currentFilter) {
-      case FilterState.completed:
-        return _tasks.where((task) => task.completed).toList();
-      case FilterState.incomplete:
-        return _tasks.where((task) => !task.completed).toList();
-      case FilterState.all:
-      default:
-        return _tasks;
-    }
-  }
-
-  void _addTask() async {
-    final newTaskTitle = await Navigator.push<String>(
-      context,
-      MaterialPageRoute(builder: (context) => const AddTaskScreen()),
-    );
-
-    if (newTaskTitle != null && newTaskTitle.isNotEmpty) {
-      setState(() {
-        _tasks.add(Task(title: newTaskTitle));
-      });
-    }
-  }
-
-  void _toggleTaskCompletion(int index, bool? value) {
+  void _addTodoItem(String title) {
     setState(() {
-      final task = _filteredTasks[index];
-      task.completed = value ?? false;
+      _todoList.add(Todo(title: title));
+    });
+    _textFieldController.clear();
+  }
+
+  void _removeTodoItem(int index) {
+    // Bisogna trovare l'indice corretto nella lista originale
+    final todoToRemove = _getFilteredList()[index];
+    setState(() {
+      _todoList.remove(todoToRemove);
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('My To-Do List'),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(kToolbarHeight),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-            child: SegmentedButton<FilterState>(
-              segments: const <ButtonSegment<FilterState>>[
-                ButtonSegment<FilterState>(
-                  value: FilterState.all,
-                  label: Text('Tutti'),
-                  icon: Icon(Icons.list),
-                ),
-                ButtonSegment<FilterState>(
-                  value: FilterState.completed,
-                  label: Text('Completati'),
-                  icon: Icon(Icons.check_box),
-                ),
-                ButtonSegment<FilterState>(
-                  value: FilterState.incomplete,
-                  label: Text('Da Fare'),
-                  icon: Icon(Icons.check_box_outline_blank),
-                ),
-              ],
-              selected: <FilterState>{_currentFilter},
-              onSelectionChanged: (Set<FilterState> newSelection) {
-                setState(() {
-                  _currentFilter = newSelection.first;
-                });
-              },
+  void _toggleTodoStatus(int index, bool? value) {
+    // Bisogna trovare l'indice corretto nella lista originale
+    final todoToToggle = _getFilteredList()[index];
+    final originalIndex = _todoList.indexOf(todoToToggle);
+    setState(() {
+      _todoList[originalIndex].completed = value ?? false;
+    });
+  }
+
+  Future<void> _displayDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // l'utente deve premere un pulsante
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Aggiungi un nuovo todo'),
+          content: TextField(
+            controller: _textFieldController,
+            decoration: const InputDecoration(
+              hintText: 'Scrivi qui il tuo todo',
             ),
           ),
-        ),
-      ),
-      body: ListView.builder(
-        itemCount: _filteredTasks.length,
-        itemBuilder: (context, index) {
-          final task = _filteredTasks[index];
-          return CheckboxListTile(
-            title: Text(
-              task.title,
-              style: TextStyle(
-                decoration: task.completed
-                    ? TextDecoration.lineThrough
-                    : TextDecoration.none,
-              ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Annulla'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _textFieldController.clear();
+              },
             ),
-            value: task.completed,
-            onChanged: (bool? value) {
-              _toggleTaskCompletion(index, value);
-            },
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _addTask,
-        tooltip: 'Add Task',
-        child: const Icon(Icons.add),
-      ),
+            TextButton(
+              child: const Text('Aggiungi'),
+              onPressed: () {
+                if (_textFieldController.text.isNotEmpty) {
+                  _addTodoItem(_textFieldController.text);
+                }
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
-}
 
-class AddTaskScreen extends StatefulWidget {
-  const AddTaskScreen({super.key});
-
-  @override
-  State<AddTaskScreen> createState() => _AddTaskScreenState();
-}
-
-class _AddTaskScreenState extends State<AddTaskScreen> {
-  final TextEditingController _textFieldController = TextEditingController();
-
-  void _submitTask() {
-    Navigator.of(context).pop(_textFieldController.text);
+  List<Todo> _getFilteredList() {
+    switch (_selectedIndex) {
+      case 1: // Da Fare
+        return _todoList.where((todo) => !todo.completed).toList();
+      case 2: // Completate
+        return _todoList.where((todo) => todo.completed).toList();
+      case 0: // Tutte
+      default:
+        return _todoList;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final filteredList = _getFilteredList();
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Add a new task')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _textFieldController,
-              autofocus: true,
-              decoration: const InputDecoration(
-                labelText: 'Task',
-                hintText: 'Cosa devi fare?',
-              ),
-              onSubmitted: (_) => _submitTask(),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(onPressed: _submitTask, child: const Text('Add')),
-          ],
-        ),
+      appBar: AppBar(title: const Text('To Do List')),
+      body: Column(
+        children: [
+          SegmentedButton<int>(
+            segments: const <ButtonSegment<int>>[
+              ButtonSegment<int>(value: 0, label: Text('Tutte')),
+              ButtonSegment<int>(value: 1, label: Text('Da Fare')),
+              ButtonSegment<int>(value: 2, label: Text('Completate')),
+            ],
+            selected: {_selectedIndex},
+            onSelectionChanged: (Set<int> newSelection) {
+              setState(() {
+                _selectedIndex = newSelection.first;
+              });
+            },
+          ),
+          const SizedBox(height: 8),
+          Expanded(
+            child: _todoList.isEmpty
+                ? const Center(
+                    child: Text('Aggiungi un todo per vederne le info.'),
+                  )
+                : filteredList.isEmpty
+                ? const Center(child: Text('Nessun elemento in questa vista.'))
+                : ListView.builder(
+                    itemCount: filteredList.length,
+                    itemBuilder: (context, index) {
+                      final todo = filteredList[index];
+                      return ListTile(
+                        leading: Checkbox(
+                          value: todo.completed,
+                          onChanged: (bool? value) {
+                            _toggleTodoStatus(index, value);
+                          },
+                        ),
+                        title: Text(
+                          todo.title,
+                          style: TextStyle(
+                            decoration: todo.completed
+                                ? TextDecoration.lineThrough
+                                : TextDecoration.none,
+                          ),
+                        ),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete),
+                          onPressed: () => _removeTodoItem(index),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _displayDialog(),
+        tooltip: 'Aggiungi Todo',
+        child: const Icon(Icons.add),
       ),
     );
   }

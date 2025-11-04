@@ -12,9 +12,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'To Do LIST',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+        primarySwatch: Colors.grey,
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
       ),
       // Il widget TodoListScreen da todolist.dart è ora la home page.
       home: const TodoListScreen(),
