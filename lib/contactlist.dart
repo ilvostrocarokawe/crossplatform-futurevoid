@@ -1,8 +1,6 @@
-// lib/contactlist.dart
-
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart'; // Per chiamare
-import 'package:share_plus/share_plus.dart';   // Per condividere
+import 'package:share_plus/share_plus.dart'; // Per condividere
 
 /// Modello dati per un contatto (Persona).
 class Person {
@@ -30,26 +28,15 @@ class ContactListScreen extends StatefulWidget {
 class _ContactListScreenState extends State<ContactListScreen> {
   // Lista di contatti inizializzata con dati di esempio.
   final List<Person> contacts = [
-    Person(
-        firstName: 'Mario',
-        lastName: 'Rossi',
-        phones: ['3331112233', '02123456']),
-    Person(
-        firstName: 'Laura', lastName: 'Bianchi', phones: ['3384455667']),
-    Person(
-        firstName: 'Giovanni',
-        lastName: 'Verdi',
-        phones: ['3409988776', '06543210', '3471122334']),
-    Person(
-        firstName: 'Anna', lastName: 'Neri', phones: ['3391234567']),
+    Person(firstName: 'Mario', lastName: 'Rossi', phones: ['3331112233', '02123456']),
+    Person(firstName: 'Laura', lastName: 'Bianchi', phones: ['3384455667']),
+    Person(firstName: 'Giovanni', lastName: 'Verdi', phones: ['3409988776', '06543210', '3471122334']),
+    Person(firstName: 'Anna', lastName: 'Neri', phones: ['3391234567']),
   ];
 
   /// Gestisce la chiamata ad un numero di telefono specifico usando lo schema 'tel:'.
   Future<void> _makePhoneCall(String phoneNumber) async {
-    final Uri launchUri = Uri(
-      scheme: 'tel',
-      path: phoneNumber,
-    );
+    final Uri launchUri = Uri(scheme: 'tel', path: phoneNumber);
     if (!await launchUrl(launchUri)) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -59,7 +46,7 @@ class _ContactListScreenState extends State<ContactListScreen> {
     }
   }
 
-  /// Gestisce la condivisione dei dettagli di un contatto come testo (Bonus).
+  /// Gestisce la condivisione dei dettagli di un contatto come testo.
   Future<void> _shareContact(Person contact) async {
     final String phoneList = contact.phones.join(', ');
     final String textToShare =
@@ -67,7 +54,7 @@ class _ContactListScreenState extends State<ContactListScreen> {
     await Share.share(textToShare);
   }
 
-  /// Mostra una finestra di dialogo per modificare nome e cognome (Bonus).
+  /// Mostra una finestra di dialogo per modificare nome e cognome.
   void _editContact(Person contact, int index) {
     final TextEditingController firstNameController =
         TextEditingController(text: contact.firstName);
@@ -100,7 +87,6 @@ class _ContactListScreenState extends State<ContactListScreen> {
             TextButton(
               child: const Text('Salva'),
               onPressed: () {
-                // Aggiorna lo stato del contatto e l'interfaccia utente
                 setState(() {
                   contacts[index].firstName = firstNameController.text;
                   contacts[index].lastName = lastNameController.text;
@@ -137,31 +123,33 @@ class _ContactListScreenState extends State<ContactListScreen> {
                 ),
               ),
               title: Text(contact.fullName),
-              // Mostra tutti i numeri nel sottotitolo
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: contact.phones
                     .map((phone) => Padding(
                           padding: const EdgeInsets.only(top: 2.0),
-                          child: Text(phone,
-                              style:
-                                  const TextStyle(fontStyle: FontStyle.italic)),
+                          child: Text(
+                            phone,
+                            style: const TextStyle(
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
                         ))
                     .toList(),
               ),
               trailing: SizedBox(
-                width: 150, 
+                width: 150,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    // Pulsante Modifica (Bonus)
+                    // Pulsante Modifica
                     IconButton(
                       icon: const Icon(Icons.edit, color: Colors.grey),
                       onPressed: () => _editContact(contact, index),
                       tooltip: 'Modifica Contatto',
                     ),
-                    
-                    // Logica di chiamata: pulsante diretto se un numero, menu se multipli
+
+                    // Pulsante chiamata
                     if (contact.phones.length == 1)
                       IconButton(
                         icon: const Icon(Icons.call, color: Colors.green),
@@ -169,7 +157,7 @@ class _ContactListScreenState extends State<ContactListScreen> {
                         tooltip: 'Chiama',
                       )
                     else
-                      //                       PopupMenuButton<String>(
+                      PopupMenuButton<String>(
                         icon: const Icon(Icons.call, color: Colors.green),
                         tooltip: 'Chiama...',
                         onSelected: _makePhoneCall,
@@ -182,8 +170,8 @@ class _ContactListScreenState extends State<ContactListScreen> {
                           }).toList();
                         },
                       ),
-                      
-                    // Pulsante Condividi (Bonus)
+
+                    // Pulsante Condividi
                     IconButton(
                       icon: const Icon(Icons.share, color: Colors.blue),
                       onPressed: () => _shareContact(contact),
@@ -199,3 +187,4 @@ class _ContactListScreenState extends State<ContactListScreen> {
     );
   }
 }
+gg
