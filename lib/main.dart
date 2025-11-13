@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:tallycounter/counterpage.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,7 +14,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const CounterPage(),
+      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
