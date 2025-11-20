@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:flutter/services.dart';
 
 void main() {
   runApp(const MyApp());
@@ -63,23 +62,24 @@ class _ContactListScreenState extends State<ContactListScreen> {
     Person(
       firstName: 'Mario',
       lastName: 'Rossi',
-      phones: ['3331112233'],
+      phones: ['+39 333 111 2233'],
     ),
     Person(
       firstName: 'Laura',
       lastName: 'Bianchi',
-      phones: ['3384455667', '0212345678'],
+      phones: ['+39 338 445 5667', '+39 02 123456'],
     ),
     Person(
       firstName: 'Giovanni',
       lastName: 'Verdi',
-      phones: ['3409988776'],
+      phones: ['+39 340 998 8776'],
     ),
   ];
 
   /// CHIAMATA TELEFONICA (url_launcher)
   Future<void> _makePhoneCall(String phoneNumber) async {
-    final Uri uri = Uri(scheme: 'tel', path: phoneNumber);
+    final clean = phoneNumber.replaceAll(RegExp(r'[^0-9+]'), '');
+    final Uri uri = Uri(scheme: 'tel', path: clean);
 
     if (!await launchUrl(uri)) {
       if (!mounted) return;
@@ -160,7 +160,7 @@ class _ContactListScreenState extends State<ContactListScreen> {
     );
   }
 
-  /// CREAZIONE NUOVO CONTATTO (con max 10 cifre)
+  /// CREAZIONE NUOVO CONTATTO (bonus)
   void _addContact() {
     final firstController = TextEditingController();
     final lastController = TextEditingController();
@@ -187,14 +187,9 @@ class _ContactListScreenState extends State<ContactListScreen> {
                 const SizedBox(height: 12),
                 TextField(
                   controller: phoneController,
-                  decoration: const InputDecoration(
-                    labelText: 'Telefono (max 10 cifre)',
-                  ),
-                  keyboardType: TextInputType.number,
-                  inputFormatters: const [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(10),
-                  ],
+                  decoration:
+                      const InputDecoration(labelText: 'Telefono principale'),
+                  keyboardType: TextInputType.phone,
                 ),
               ],
             ),
@@ -229,7 +224,7 @@ class _ContactListScreenState extends State<ContactListScreen> {
     );
   }
 
-  /// ELIMINA CONTATTO
+  /// ELIMINA CONTATTO (bonus)
   void _deleteContact(int index) {
     setState(() {
       contacts.removeAt(index);
