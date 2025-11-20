@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(const MyApp());
@@ -57,29 +58,28 @@ class ContactListScreen extends StatefulWidget {
 }
 
 class _ContactListScreenState extends State<ContactListScreen> {
-  // Dummy data
+  // Dummy data: numeri solo cifre, max 10
   final List<Person> contacts = [
     Person(
       firstName: 'Mario',
       lastName: 'Rossi',
-      phones: ['+39 333 111 2233'],
+      phones: ['3331112233'],
     ),
     Person(
       firstName: 'Laura',
       lastName: 'Bianchi',
-      phones: ['+39 338 445 5667', '+39 02 123456'],
+      phones: ['3384455667', '0212345678'],
     ),
     Person(
       firstName: 'Giovanni',
       lastName: 'Verdi',
-      phones: ['+39 340 998 8776'],
+      phones: ['3409988776'],
     ),
   ];
 
   /// CHIAMATA TELEFONICA (url_launcher)
   Future<void> _makePhoneCall(String phoneNumber) async {
-    final clean = phoneNumber.replaceAll(RegExp(r'[^0-9+]'), '');
-    final Uri uri = Uri(scheme: 'tel', path: clean);
+    final Uri uri = Uri(scheme: 'tel', path: phoneNumber);
 
     if (!await launchUrl(uri)) {
       if (!mounted) return;
@@ -94,7 +94,8 @@ class _ContactListScreenState extends State<ContactListScreen> {
     final Uri uri = Uri(
       scheme: 'mailto',
       path: email,
-      query: 'subject=Contatto da app&body=Ciao, ti sto contattando dalla mia app.',
+      query:
+          'subject=Contatto da app&body=Ciao, ti sto contattando dalla mia app.',
     );
 
     if (!await launchUrl(uri)) {
@@ -112,7 +113,7 @@ class _ContactListScreenState extends State<ContactListScreen> {
     await Share.share(text, subject: 'Dettagli contatto');
   }
 
-  /// EDIT CONTATTO
+  /// EDIT CONTATTO (solo nome/cognome)
   void _editContact(Person person, int index) {
     final firstController = TextEditingController(text: person.firstName);
     final lastController = TextEditingController(text: person.lastName);
@@ -160,7 +161,8 @@ class _ContactListScreenState extends State<ContactListScreen> {
     );
   }
 
-  /// CREAZIONE NUOVO CONTATTO (bonus)
+  /// CREAZIONE NUOVO CONTATTO
+  /// Telefono: solo cifre, max 10
   void _addContact() {
     final firstController = TextEditingController();
     final lastController = TextEditingController();
@@ -187,9 +189,14 @@ class _ContactListScreenState extends State<ContactListScreen> {
                 const SizedBox(height: 12),
                 TextField(
                   controller: phoneController,
-                  decoration:
-                      const InputDecoration(labelText: 'Telefono principale'),
-                  keyboardType: TextInputType.phone,
+                  decoration: const InputDecoration(
+                    labelText: 'Telefono (solo cifre, max 10)',
+                  ),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(10),
+                  ],
                 ),
               ],
             ),
@@ -205,12 +212,18 @@ class _ContactListScreenState extends State<ContactListScreen> {
                     lastController.text.isEmpty ||
                     phoneController.text.isEmpty) return;
 
+                // extra sicurezza: rimuove qualsiasi non-cifra
+                final cleanPhone =
+                    phoneController.text.replaceAll(RegExp(r'[^0-9]'), '');
+
+                if (cleanPhone.isEmpty || cleanPhone.length > 10) return;
+
                 setState(() {
                   contacts.add(
                     Person(
                       firstName: firstController.text,
                       lastName: lastController.text,
-                      phones: [phoneController.text],
+                      phones: [cleanPhone],
                     ),
                   );
                 });
@@ -224,7 +237,7 @@ class _ContactListScreenState extends State<ContactListScreen> {
     );
   }
 
-  /// ELIMINA CONTATTO (bonus)
+  /// ELIMINA CONTATTO
   void _deleteContact(int index) {
     setState(() {
       contacts.removeAt(index);
