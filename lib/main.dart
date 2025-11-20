@@ -58,7 +58,6 @@ class ContactListScreen extends StatefulWidget {
 }
 
 class _ContactListScreenState extends State<ContactListScreen> {
-  // Dummy data: numeri solo cifre, max 10
   final List<Person> contacts = [
     Person(
       firstName: 'Mario',
@@ -77,7 +76,6 @@ class _ContactListScreenState extends State<ContactListScreen> {
     ),
   ];
 
-  /// CHIAMATA TELEFONICA (url_launcher)
   Future<void> _makePhoneCall(String phoneNumber) async {
     final Uri uri = Uri(scheme: 'tel', path: phoneNumber);
 
@@ -89,7 +87,6 @@ class _ContactListScreenState extends State<ContactListScreen> {
     }
   }
 
-  /// EMAIL DI ESEMPIO (mailto)
   Future<void> _sendEmail(String email) async {
     final Uri uri = Uri(
       scheme: 'mailto',
@@ -106,14 +103,11 @@ class _ContactListScreenState extends State<ContactListScreen> {
     }
   }
 
-  /// SHARE CONTATTO (share_plus)
   Future<void> _shareContact(Person person) async {
     final phones = person.phones.join(', ');
     final text = 'Contatto: ${person.fullName}\nTelefoni: $phones';
     await Share.share(text, subject: 'Dettagli contatto');
   }
-
-  /// EDIT CONTATTO (solo nome/cognome)
   void _editContact(Person person, int index) {
     final firstController = TextEditingController(text: person.firstName);
     final lastController = TextEditingController(text: person.lastName);
@@ -161,8 +155,6 @@ class _ContactListScreenState extends State<ContactListScreen> {
     );
   }
 
-  /// CREAZIONE NUOVO CONTATTO
-  /// Telefono: solo cifre, max 10
   void _addContact() {
     final firstController = TextEditingController();
     final lastController = TextEditingController();
@@ -237,14 +229,12 @@ class _ContactListScreenState extends State<ContactListScreen> {
     );
   }
 
-  /// ELIMINA CONTATTO
   void _deleteContact(int index) {
     setState(() {
       contacts.removeAt(index);
     });
   }
 
-  /// BOTTOM SHEET DETTAGLI / NUMERI
   void _showContactDetails(Person person, int index) {
     showModalBottomSheet(
       context: context,
@@ -320,7 +310,6 @@ class _ContactListScreenState extends State<ContactListScreen> {
     );
   }
 
-  /// UI PRINCIPALE
   @override
   Widget build(BuildContext context) {
     return Scaffold(
