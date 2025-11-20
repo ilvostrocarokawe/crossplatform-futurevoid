@@ -7,7 +7,6 @@ void main() {
   runApp(const MyApp());
 }
 
-/// MODEL: Person (Contact)
 class Person {
   String firstName;
   String lastName;
@@ -28,7 +27,6 @@ class Person {
   }
 }
 
-/// ROOT APP
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -49,7 +47,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-/// MAIN SCREEN
 class ContactListScreen extends StatefulWidget {
   const ContactListScreen({super.key});
 
@@ -67,7 +64,7 @@ class _ContactListScreenState extends State<ContactListScreen> {
     Person(
       firstName: 'Laura',
       lastName: 'Bianchi',
-      phones: ['3384455667', '0212345678'],
+      phones: ['3384455667'],
     ),
     Person(
       firstName: 'Giovanni',
@@ -78,7 +75,6 @@ class _ContactListScreenState extends State<ContactListScreen> {
 
   Future<void> _makePhoneCall(String phoneNumber) async {
     final Uri uri = Uri(scheme: 'tel', path: phoneNumber);
-
     if (!await launchUrl(uri)) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -91,10 +87,8 @@ class _ContactListScreenState extends State<ContactListScreen> {
     final Uri uri = Uri(
       scheme: 'mailto',
       path: email,
-      query:
-          'subject=Contatto da app&body=Ciao, ti sto contattando dalla mia app.',
+      query: 'subject=Contatto da app&body=Ciao, ti sto contattando dalla mia app.',
     );
-
     if (!await launchUrl(uri)) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -108,28 +102,46 @@ class _ContactListScreenState extends State<ContactListScreen> {
     final text = 'Contatto: ${person.fullName}\nTelefoni: $phones';
     await Share.share(text, subject: 'Dettagli contatto');
   }
+
   void _editContact(Person person, int index) {
     final firstController = TextEditingController(text: person.firstName);
     final lastController = TextEditingController(text: person.lastName);
+    final phoneController = TextEditingController(
+      text: person.phones.isNotEmpty ? person.phones.first : '',
+    );
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: const Text('Modifica contatto'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: firstController,
-                decoration: const InputDecoration(labelText: 'Nome'),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: lastController,
-                decoration: const InputDecoration(labelText: 'Cognome'),
-              ),
-            ],
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: firstController,
+                  decoration: const InputDecoration(labelText: 'Nome'),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: lastController,
+                  decoration: const InputDecoration(labelText: 'Cognome'),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: phoneController,
+                  decoration: const InputDecoration(
+                    labelText: 'Telefono (solo cifre, max 10)',
+                  ),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(10),
+                  ],
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
@@ -139,11 +151,17 @@ class _ContactListScreenState extends State<ContactListScreen> {
             ElevatedButton(
               onPressed: () {
                 if (firstController.text.isEmpty ||
-                    lastController.text.isEmpty) return;
+                    lastController.text.isEmpty ||
+                    phoneController.text.isEmpty) return;
+
+                final cleanPhone =
+                    phoneController.text.replaceAll(RegExp(r'[^0-9]'), '');
+                if (cleanPhone.isEmpty || cleanPhone.length > 10) return;
 
                 setState(() {
                   contacts[index].firstName = firstController.text;
                   contacts[index].lastName = lastController.text;
+                  contacts[index].phones = [cleanPhone];
                 });
                 Navigator.pop(context);
               },
@@ -204,10 +222,8 @@ class _ContactListScreenState extends State<ContactListScreen> {
                     lastController.text.isEmpty ||
                     phoneController.text.isEmpty) return;
 
-                // extra sicurezza: rimuove qualsiasi non-cifra
                 final cleanPhone =
                     phoneController.text.replaceAll(RegExp(r'[^0-9]'), '');
-
                 if (cleanPhone.isEmpty || cleanPhone.length > 10) return;
 
                 setState(() {
