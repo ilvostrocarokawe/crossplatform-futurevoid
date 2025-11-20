@@ -11,12 +11,15 @@ class Person {
   String firstName;
   String lastName;
   List<String> phones;
+
   Person({
     required this.firstName,
     required this.lastName,
     required this.phones,
   });
+
   String get fullName => '$firstName $lastName';
+
   String get initials {
     final f = firstName.isNotEmpty ? firstName[0] : '';
     final l = lastName.isNotEmpty ? lastName[0] : '';
@@ -83,20 +86,6 @@ class _ContactListScreenState extends State<ContactListScreen> {
     }
   }
 
-  Future<void> _sendEmail(String email) async {
-    final Uri uri = Uri(
-      scheme: 'mailto',
-      path: email,
-      query: 'subject=Contatto da app&body=Ciao, ti sto contattando dalla mia app.',
-    );
-    if (!await launchUrl(uri)) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Impossibile aprire il client email')),
-      );
-    }
-  }
-
   Future<void> _shareContact(Person person) async {
     final phones = person.phones.join(', ');
     final text = 'Contatto: ${person.fullName}\nTelefoni: $phones';
@@ -107,7 +96,8 @@ class _ContactListScreenState extends State<ContactListScreen> {
     final firstController = TextEditingController(text: person.firstName);
     final lastController = TextEditingController(text: person.lastName);
     final phoneController = TextEditingController(
-        text: person.phones.isNotEmpty ? person.phones.first : '');
+      text: person.phones.isNotEmpty ? person.phones.first : '',
+    );
 
     showDialog(
       context: context,
@@ -139,7 +129,9 @@ class _ContactListScreenState extends State<ContactListScreen> {
                       ),
                       keyboardType: TextInputType.phone,
                       inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'^\+?\d{0,12}')),
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'^\+?\d{0,12}'),
+                        ),
                         LengthLimitingTextInputFormatter(13),
                       ],
                       onChanged: (value) {
@@ -225,7 +217,9 @@ class _ContactListScreenState extends State<ContactListScreen> {
                       ),
                       keyboardType: TextInputType.phone,
                       inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'^\+?\d{0,12}')),
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'^\+?\d{0,12}'),
+                        ),
                         LengthLimitingTextInputFormatter(13),
                       ],
                       onChanged: (value) {
@@ -325,11 +319,6 @@ class _ContactListScreenState extends State<ContactListScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    IconButton(
-                      tooltip: 'Email di esempio',
-                      icon: const Icon(Icons.email_outlined),
-                      onPressed: () => _sendEmail('esempio@mail.com'),
-                    ),
                     IconButton(
                       tooltip: 'Modifica',
                       icon: const Icon(Icons.edit),
