@@ -212,7 +212,7 @@ class _ContactListScreenState extends State<ContactListScreen> {
                     TextField(
                       controller: phoneController,
                       decoration: InputDecoration(
-                        labelText: 'Telefono (+39 e 10 cifre, non 94)',
+                        labelText: 'Telefono (+39 e 10 cifre)',
                         errorText: errorMessage,
                       ),
                       keyboardType: TextInputType.phone,
