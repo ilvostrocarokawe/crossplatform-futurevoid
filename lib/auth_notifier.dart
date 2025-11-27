@@ -9,10 +9,6 @@ class AppUser {
     required this.username,
   });
 
-  factory AppUser.fromEmail(String email) {
-    return AppUser(email: email, username: email);
-  }
-
   AppUser copyWith({
     String? email,
     String? username,
@@ -26,12 +22,12 @@ class AppUser {
 
 class AuthNotifier extends Notifier<AppUser?> {
   @override
-  AppUser? build() => null; // non loggato
+  AppUser? build() => null; // utente non loggato
 
   bool get isLoggedIn => state != null;
 
-  void login(String email) {
-    state = AppUser.fromEmail(email);
+  void login({required String email, required String username}) {
+    state = AppUser(email: email, username: username);
   }
 
   void logout() {

@@ -14,6 +14,11 @@ class HomeScreen extends ConsumerWidget {
     final greeting =
         user == null ? 'Welcome, Guest!' : 'Welcome, ${user.username}!';
 
+    void logout() {
+      ref.read(authProvider.notifier).logout();
+      context.go('/login');
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home'),
@@ -24,18 +29,27 @@ class HomeScreen extends ConsumerWidget {
           ),
           if (user != null)
             IconButton(
-              onPressed: () {
-                ref.read(authProvider.notifier).logout();
-                context.go('/login');
-              },
+              onPressed: logout,
               icon: const Icon(Icons.logout),
             ),
         ],
       ),
       body: Center(
-        child: Text(
-          greeting,
-          style: const TextStyle(fontSize: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              greeting,
+              style: const TextStyle(fontSize: 24),
+            ),
+            const SizedBox(height: 24),
+            if (user != null)
+              ElevatedButton.icon(
+                onPressed: logout,
+                icon: const Icon(Icons.logout),
+                label: const Text('Esci'),
+              ),
+          ],
         ),
       ),
     );

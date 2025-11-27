@@ -19,11 +19,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void initState() {
     super.initState();
     form = FormGroup({
+      'username': FormControl<String>(
+        validators: [Validators.required],
+      ),
       'email': FormControl<String>(
-        validators: [Validators.required, Validators.email],
+        validators: [
+          Validators.required,
+          Validators.email,
+        ],
       ),
       'password': FormControl<String>(
-        validators: [Validators.required],
+        validators: [
+          Validators.required,
+        ],
       ),
     });
   }
@@ -39,14 +47,38 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           child: Column(
             children: [
               ReactiveTextField<String>(
+                formControlName: 'username',
+                decoration: const InputDecoration(
+                  labelText: 'Username',
+                ),
+                validationMessages: {
+                  ValidationMessage.required: (_) =>
+                      'Lo username non può essere vuoto',
+                },
+              ),
+              const SizedBox(height: 16),
+              ReactiveTextField<String>(
                 formControlName: 'email',
-                decoration: const InputDecoration(labelText: 'Email'),
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                ),
+                validationMessages: {
+                  ValidationMessage.required: (_) =>
+                      'L\'email non può essere vuota',
+                  ValidationMessage.email: (_) => 'Email non valida',
+                },
               ),
               const SizedBox(height: 16),
               ReactiveTextField<String>(
                 formControlName: 'password',
-                decoration: const InputDecoration(labelText: 'Password'),
+                decoration: const InputDecoration(
+                  labelText: 'Password',
+                ),
                 obscureText: true,
+                validationMessages: {
+                  ValidationMessage.required: (_) =>
+                      'La password non può essere vuota',
+                },
               ),
               const SizedBox(height: 24),
               ReactiveFormConsumer(
@@ -55,9 +87,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   return ElevatedButton(
                     onPressed: isValid
                         ? () {
+                            final username =
+                                formGroup.control('username').value as String;
                             final email =
                                 formGroup.control('email').value as String;
-                            ref.read(authProvider.notifier).login(email);
+
+                            ref
+                                .read(authProvider.notifier)
+                                .login(email: email, username: username);
+
                             context.go('/home');
                           }
                         : null,
