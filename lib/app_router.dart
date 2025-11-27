@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'auth_notifier.dart';
-import 'home_screen.dart';
-import 'login_screen.dart';
-import 'profile_screen.dart';
+import 'features/auth/auth_notifier.dart';
+import 'features/home/home_screen.dart';
+import 'features/auth/login_screen.dart';
+import 'features/auth/profile_screen.dart';
 
 class GoRouterRefreshListenable extends ChangeNotifier {
   GoRouterRefreshListenable(this.ref) {
