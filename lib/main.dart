@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'router/app_router.dart';
+import 'router.dart';
+import 'theme_provider.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -11,15 +12,16 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final router = ref.watch(goRouterProvider);
-    
+    final themeState = ref.watch(themeProvider);
+
     return MaterialApp.router(
-      title: 'Shopping Cart',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        useMaterial3: true,
-      ),
+      title: 'Better Color Changer',
       routerConfig: router,
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: themeState.selectedColor,
+        brightness: themeState.isDarkMode ? Brightness.dark : Brightness.light,
+      ),
     );
   }
 }

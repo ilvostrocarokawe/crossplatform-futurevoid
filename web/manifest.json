@@ -1,6 +1,6 @@
 {
-    "name": "crossplatformfuturevoid",
-    "short_name": "crossplatformfuturevoid",
+    "name": "better_color_changer",
+    "short_name": "better_color_changer",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
