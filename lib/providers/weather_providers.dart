@@ -3,10 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/weather.dart';
 import '../services/weather_api_service.dart';
 
-
 const kOpenWeatherApiKey = 'LA_TUA_API_KEY';
 
-// Service provider
 final weatherApiServiceProvider = Provider<WeatherApiService>((ref) {
   return WeatherApiService(kOpenWeatherApiKey);
 });
@@ -19,7 +17,6 @@ final sharedPrefsProvider = FutureProvider<SharedPreferences>((ref) async {
 const _kLastCityKey = 'last_city';
 const _kFavoritesKey = 'favorite_cities';
 
-// Provider per la città selezionata (state + persistenza)
 final selectedCityProvider =
     StateNotifierProvider<SelectedCityNotifier, String?>(
   (ref) => SelectedCityNotifier(ref),
