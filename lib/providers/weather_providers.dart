@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/weather.dart';
 import '../services/weather_api_service.dart';
 
-// Sostituisci con la tua API key
+
 const kOpenWeatherApiKey = 'LA_TUA_API_KEY';
 
 // Service provider
@@ -16,7 +16,6 @@ final sharedPrefsProvider = FutureProvider<SharedPreferences>((ref) async {
   return SharedPreferences.getInstance();
 });
 
-// Ultima città cercata (persistente)
 const _kLastCityKey = 'last_city';
 const _kFavoritesKey = 'favorite_cities';
 
@@ -35,7 +34,6 @@ class SelectedCityNotifier extends StateNotifier<String?> {
 
   Future<void> _loadInitial() async {
     final prefs = await SharedPreferences.getInstance();
-    // default Udine se non salvato nulla
     state = prefs.getString(_kLastCityKey) ?? 'Udine';
   }
 
@@ -46,7 +44,6 @@ class SelectedCityNotifier extends StateNotifier<String?> {
   }
 }
 
-// FutureProvider che carica il meteo per la città selezionata
 final weatherForSelectedCityProvider = FutureProvider<Weather>((ref) async {
   final city = ref.watch(selectedCityProvider);
   if (city == null || city.isEmpty) {
@@ -56,7 +53,6 @@ final weatherForSelectedCityProvider = FutureProvider<Weather>((ref) async {
   return api.fetchByCity(city);
 });
 
-// Provider per lista dei preferiti (persistente)
 final favoritesProvider =
     StateNotifierProvider<FavoritesNotifier, List<String>>(
   (ref) => FavoritesNotifier(),

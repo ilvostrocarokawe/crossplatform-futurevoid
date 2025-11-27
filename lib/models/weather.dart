@@ -1,8 +1,8 @@
 class Weather {
   final String cityName;
-  final double temperature; // in Kelvin o Celsius a seconda di &units
+  final double temperature;
   final String description;
-  final int conditionCode; // weather[0].id
+  final int conditionCode; 
 
   Weather({
     required this.cityName,
