@@ -1,11 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../models/weather.dart';
 import '../services/weather_api_service.dart';
 
-// IMPORTANTE: Sostituisci con la tua API key di OpenWeatherMap
+// IMPORTANTE: metti qui la tua API key di OpenWeatherMap
 // Registrati su: https://openweathermap.org/api
-const kOpenWeatherApiKey = 'INSERISCI_QUI_LA_TUA_API_KEY';
+const kOpenWeatherApiKey = 'LA_TUA_API_KEY';
 
 final weatherApiServiceProvider = Provider<WeatherApiService>((ref) {
   return WeatherApiService(kOpenWeatherApiKey);
@@ -32,7 +33,6 @@ class SelectedCityNotifier extends StateNotifier<String?> {
 
   Future<void> setCity(String city) async {
     if (city.trim().isEmpty) return;
-    
     state = city.trim();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_kLastCityKey, state!);
@@ -42,13 +42,13 @@ class SelectedCityNotifier extends StateNotifier<String?> {
 // Provider per il meteo della città selezionata
 final weatherForSelectedCityProvider = FutureProvider<Weather>((ref) async {
   final city = ref.watch(selectedCityProvider);
-  
+
   if (city == null || city.isEmpty) {
     throw WeatherApiException('Nessuna città selezionata');
   }
 
-  if (kOpenWeatherApiKey == 'INSERISCI_QUI_LA_TUA_API_KEY' ||
-      kOpenWeatherApiKey.isEmpty) {
+  if (kOpenWeatherApiKey.isEmpty ||
+      kOpenWeatherApiKey == 'LA_TUA_API_KEY') {
     throw WeatherApiException(
       'API Key mancante! Inseriscila in providers/weather_providers.dart',
     );
@@ -82,7 +82,6 @@ class FavoritesNotifier extends StateNotifier<List<String>> {
 
   Future<void> addFavorite(String city) async {
     if (city.trim().isEmpty) return;
-    
     final trimmedCity = city.trim();
     if (!state.contains(trimmedCity)) {
       state = [...state, trimmedCity];
